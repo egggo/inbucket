@@ -9,8 +9,8 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/jhillyerd/inbucket/log"
-	"github.com/jhillyerd/inbucket/smtpd"
+	"github.com/egggo/inbucket/log"
+	"github.com/egggo/inbucket/smtpd"
 )
 
 type JsonMessageHeader struct {

@@ -11,8 +11,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/jhillyerd/inbucket/log"
-	"github.com/jhillyerd/inbucket/smtpd"
+	"github.com/egggo/inbucket/log"
+	"github.com/egggo/inbucket/smtpd"
 )
 
 type State int
@@ -178,7 +178,9 @@ func (ses *Session) authorizationHandler(cmd string, args []string) {
 		ses.enterState(QUIT)
 	case "USER":
 		if len(args) > 0 {
-			ses.user = args[0]
+			sub := strings.Split(args[0], "@")
+
+			ses.user = sub[0]
 			ses.send(fmt.Sprintf("+OK Hello %v, welcome to Inbucket", ses.user))
 		} else {
 			ses.send("-ERR Missing username argument")
@@ -187,10 +189,20 @@ func (ses *Session) authorizationHandler(cmd string, args []string) {
 		if ses.user == "" {
 			ses.ooSeq(cmd)
 		} else {
-			var err error
+			// var err error
+
+			has, err := ses.auth(ses.user, args[0])
+
+			if err != nil || !has {
+				ses.logError("Failed to auth for %v - %v", ses.user, err)
+				ses.send(fmt.Sprintf("-ERR Failed to auth for %v", ses.user))
+				ses.enterState(QUIT)
+				return
+			}
+
 			ses.mailbox, err = ses.server.dataStore.MailboxFor(ses.user)
 			if err != nil {
-				ses.logError("Failed to open mailbox for %v", ses.user)
+				ses.logError("Failed to open mailbox for %v - %v", ses.user, err)
 				ses.send(fmt.Sprintf("-ERR Failed to open mailbox for %v", ses.user))
 				ses.enterState(QUIT)
 				return

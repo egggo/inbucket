@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"io"
 
-	"github.com/jhillyerd/inbucket/config"
+	"github.com/egggo/inbucket/config"
 	//"io/ioutil"
 	"log"
 	"net"

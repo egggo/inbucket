@@ -9,12 +9,12 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/egggo/inbucket/config"
+	"github.com/egggo/inbucket/log"
+	"github.com/egggo/inbucket/smtpd"
 	"github.com/goods/httpbuf"
 	"github.com/gorilla/mux"
 	"github.com/gorilla/sessions"
-	"github.com/jhillyerd/inbucket/config"
-	"github.com/jhillyerd/inbucket/log"
-	"github.com/jhillyerd/inbucket/smtpd"
 )
 
 type handler func(http.ResponseWriter, *http.Request, *Context) error

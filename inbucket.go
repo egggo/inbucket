@@ -13,11 +13,11 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/jhillyerd/inbucket/config"
-	"github.com/jhillyerd/inbucket/log"
-	"github.com/jhillyerd/inbucket/pop3d"
-	"github.com/jhillyerd/inbucket/smtpd"
-	"github.com/jhillyerd/inbucket/web"
+	"github.com/egggo/inbucket/config"
+	"github.com/egggo/inbucket/log"
+	"github.com/egggo/inbucket/pop3d"
+	"github.com/egggo/inbucket/smtpd"
+	"github.com/egggo/inbucket/web"
 )
 
 var (

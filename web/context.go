@@ -4,9 +4,9 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/egggo/inbucket/smtpd"
 	"github.com/gorilla/mux"
 	"github.com/gorilla/sessions"
-	"github.com/jhillyerd/inbucket/smtpd"
 )
 
 type Context struct {

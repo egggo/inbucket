@@ -11,7 +11,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/jhillyerd/inbucket/config"
+	"github.com/egggo/inbucket/config"
 	"github.com/stretchr/testify/assert"
 )
 

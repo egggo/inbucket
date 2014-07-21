@@ -8,7 +8,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/jhillyerd/inbucket/log"
+	"github.com/egggo/inbucket/log"
 )
 
 var TemplateFuncs = template.FuncMap{

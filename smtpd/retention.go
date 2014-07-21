@@ -6,8 +6,8 @@ import (
 	"sync"
 	"time"
 
-	"github.com/jhillyerd/inbucket/config"
-	"github.com/jhillyerd/inbucket/log"
+	"github.com/egggo/inbucket/config"
+	"github.com/egggo/inbucket/log"
 )
 
 var retentionScanCompleted time.Time

@@ -8,7 +8,7 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/jhillyerd/inbucket/log"
+	"github.com/egggo/inbucket/log"
 )
 
 var cachedMutex sync.Mutex

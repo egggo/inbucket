@@ -13,9 +13,9 @@ import (
 	"sync"
 	"time"
 
+	"github.com/egggo/inbucket/config"
+	"github.com/egggo/inbucket/log"
 	"github.com/jhillyerd/go.enmime"
-	"github.com/jhillyerd/inbucket/config"
-	"github.com/jhillyerd/inbucket/log"
 )
 
 // Name of index file in each mailbox

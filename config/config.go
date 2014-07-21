@@ -46,6 +46,14 @@ type DataStoreConfig struct {
 	MailboxMsgCap    int
 }
 
+type DatabaseConfig struct {
+	DBDriver string
+	DBName   string
+	DBUser   string
+	DBPass   string
+	DBHost   string
+}
+
 var (
 	// Build info, set by main
 	VERSION    = ""
@@ -59,6 +67,7 @@ var (
 	pop3Config      *Pop3Config
 	webConfig       *WebConfig
 	dataStoreConfig *DataStoreConfig
+	databaseConfig  *DatabaseConfig
 )
 
 // GetSmtpConfig returns a copy of the SmtpConfig object
@@ -81,6 +90,10 @@ func GetDataStoreConfig() DataStoreConfig {
 	return *dataStoreConfig
 }
 
+func GetDatabaseConfig() DatabaseConfig {
+	return *databaseConfig
+}
+
 // LoadConfig loads the specified configuration file into inbucket.Config
 // and performs validations on it.
 func LoadConfig(filename string) error {
@@ -98,6 +111,7 @@ func LoadConfig(filename string) error {
 	requireSection(messages, "pop3")
 	requireSection(messages, "web")
 	requireSection(messages, "datastore")
+	requireSection(messages, "db")
 	if messages.Len() > 0 {
 		fmt.Fprintln(os.Stderr, "Error(s) validating configuration:")
 		for e := messages.Front(); e != nil; e = e.Next() {
@@ -128,7 +142,11 @@ func LoadConfig(filename string) error {
 	requireOption(messages, "datastore", "retention.minutes")
 	requireOption(messages, "datastore", "retention.sleep.millis")
 	requireOption(messages, "datastore", "mailbox.message.cap")
-
+	requireOption(messages, "db", "driver")
+	requireOption(messages, "db", "dbname")
+	requireOption(messages, "db", "user")
+	requireOption(messages, "db", "pass")
+	requireOption(messages, "db", "host")
 	// Return error if validations failed
 	if messages.Len() > 0 {
 		fmt.Fprintln(os.Stderr, "Error(s) validating configuration:")
@@ -151,6 +169,9 @@ func LoadConfig(filename string) error {
 	}
 
 	if err = parseDataStoreConfig(); err != nil {
+		return err
+	}
+	if err = parseDatabaseConfig(); err != nil {
 		return err
 	}
 
@@ -373,6 +394,48 @@ func parseDataStoreConfig() error {
 	if err != nil {
 		return fmt.Errorf("Failed to parse [%v]%v: '%v'", section, option, err)
 	}
+
+	return nil
+}
+
+func parseDatabaseConfig() error {
+	databaseConfig = new(DatabaseConfig)
+	section := "db"
+
+	option := "driver"
+	str, err := Config.String(section, option)
+	if err != nil {
+		return fmt.Errorf("Failed to parse [%v]%v: '%v'", section, option, err)
+	}
+	databaseConfig.DBDriver = str
+
+	option = "dbname"
+	str, err = Config.String(section, option)
+	if err != nil {
+		return fmt.Errorf("Failed to parse [%v]%v: '%v'", section, option, err)
+	}
+	databaseConfig.DBName = str
+
+	option = "user"
+	str, err = Config.String(section, option)
+	if err != nil {
+		return fmt.Errorf("Failed to parse [%v]%v: '%v'", section, option, err)
+	}
+	databaseConfig.DBUser = str
+
+	option = "pass"
+	str, err = Config.String(section, option)
+	if err != nil {
+		return fmt.Errorf("Failed to parse [%v]%v: '%v'", section, option, err)
+	}
+	databaseConfig.DBPass = str
+
+	option = "host"
+	str, err = Config.String(section, option)
+	if err != nil {
+		return fmt.Errorf("Failed to parse [%v]%v: '%v'", section, option, err)
+	}
+	databaseConfig.DBHost = str
 
 	return nil
 }

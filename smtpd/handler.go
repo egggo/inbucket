@@ -12,7 +12,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/jhillyerd/inbucket/log"
+	"github.com/egggo/inbucket/log"
 )
 
 type State int
@@ -307,8 +307,26 @@ func (ss *Session) mailHandler(cmd string, arg string) {
 			ss.send(fmt.Sprintf("552 Maximum limit of %v recipients reached", ss.server.maxRecips))
 			return
 		}
-		ss.recipients.PushBack(recip)
+
+		alias, err := ss.verifyAlias(recip)
+		if err != nil {
+			ss.logWarn("Bad recipient address %v", recip)
+			ss.send(fmt.Sprintf("501 Bad recipient address %v", recip))
+			return
+		}
+
+		if alias != nil {
+			// 此地址是别名
+			for _, v := range alias {
+				ss.recipients.PushBack(v)
+			}
+
+		} else {
+			ss.recipients.PushBack(recip)
+		}
+
 		ss.logInfo("Recipient: %v", recip)
+		ss.logInfo("Recipients: %v", *ss.recipients)
 		ss.send(fmt.Sprintf("250 I'll make sure <%v> gets this", recip))
 		return
 	case "DATA":

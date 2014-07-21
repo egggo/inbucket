@@ -6,9 +6,11 @@ import (
 	"sync"
 	"time"
 
-	"github.com/jhillyerd/inbucket/config"
-	"github.com/jhillyerd/inbucket/log"
-	"github.com/jhillyerd/inbucket/smtpd"
+	"github.com/egggo/inbucket/config"
+	"github.com/egggo/inbucket/log"
+	"github.com/egggo/inbucket/smtpd"
+	_ "github.com/go-sql-driver/mysql"
+	"github.com/go-xorm/xorm"
 )
 
 // Real server code starts here
@@ -19,6 +21,7 @@ type Server struct {
 	listener       net.Listener
 	shutdown       bool
 	waitgroup      *sync.WaitGroup
+	dbEngine       *xorm.Engine
 }
 
 // Init a new Server object
@@ -26,8 +29,23 @@ func New() *Server {
 	// TODO is two filestores better/worse than sharing w/ smtpd?
 	ds := smtpd.DefaultFileDataStore()
 	cfg := config.GetPop3Config()
+	dbCfg := config.GetDatabaseConfig()
+
+	params := fmt.Sprintf("%s:%s@tcp(%s)/%s?charset=utf8", dbCfg.DBUser, dbCfg.DBPass, dbCfg.DBHost, dbCfg.DBName)
+
+	engine, err := xorm.NewEngine(dbCfg.DBDriver, params)
+
+	if err != nil {
+		log.LogError(" create Db engine  fail: %v", err)
+		// TODO More graceful early-shutdown procedure
+		panic(err)
+	}
+
+	engine.ShowSQL = true
+
 	return &Server{domain: cfg.Domain, dataStore: ds, maxIdleSeconds: cfg.MaxIdleSeconds,
-		waitgroup: new(sync.WaitGroup)}
+		waitgroup: new(sync.WaitGroup),
+		dbEngine:  engine}
 }
 
 // Main listener loop
@@ -88,6 +106,7 @@ func (s *Server) Stop() {
 	log.LogTrace("POP3 shutdown requested, connections will be drained")
 	s.shutdown = true
 	s.listener.Close()
+	s.dbEngine.Close()
 }
 
 // Drain causes the caller to block until all active POP3 sessions have finished
