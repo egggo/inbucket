@@ -14,6 +14,7 @@ import (
 	"time"
 
 	"github.com/egggo/inbucket/config"
+	"github.com/egggo/inbucket/database"
 	"github.com/egggo/inbucket/log"
 	"github.com/egggo/inbucket/pop3d"
 	"github.com/egggo/inbucket/smtpd"
@@ -107,15 +108,17 @@ func main() {
 		fmt.Fprintf(pidf, "%v\n", os.Getpid())
 	}
 
+	db := db.New()
+	defer db.Close()
 	// Grab our datastore
 	ds := smtpd.DefaultFileDataStore()
 
 	// Start HTTP server
-	web.Initialize(config.GetWebConfig(), ds)
+	web.Initialize(config.GetWebConfig(), ds, db)
 	go web.Start()
 
 	// Start POP3 server
-	pop3Server = pop3d.New()
+	pop3Server = pop3d.New(db)
 	go pop3Server.Start()
 
 	// Startup SMTP server, block until it exits
@@ -165,6 +168,7 @@ func signalProcessor(c <-chan os.Signal) {
 			log.LogInfo("Received SIGTERM, shutting down")
 			go timedExit()
 			web.Stop()
+
 			if smtpServer != nil {
 				smtpServer.Stop()
 			} else {

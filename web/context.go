@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/egggo/inbucket/database"
 	"github.com/egggo/inbucket/smtpd"
 	"github.com/gorilla/mux"
 	"github.com/gorilla/sessions"
@@ -14,6 +15,7 @@ type Context struct {
 	Session   *sessions.Session
 	DataStore smtpd.DataStore
 	IsJson    bool
+	Database  *db.Database
 }
 
 func (c *Context) Close() {
@@ -44,6 +46,7 @@ func NewContext(req *http.Request) (*Context, error) {
 		Vars:      vars,
 		Session:   sess,
 		DataStore: DataStore,
+		Database:  Database,
 		IsJson:    headerMatch(req, "Accept", "application/json"),
 	}
 	if err != nil {

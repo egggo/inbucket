@@ -189,16 +189,16 @@ func (ses *Session) authorizationHandler(cmd string, args []string) {
 		if ses.user == "" {
 			ses.ooSeq(cmd)
 		} else {
-			// var err error
+			var err error
 
-			has, err := ses.auth(ses.user, args[0])
+			// has, err := ses.auth(ses.user, args[0])
 
-			if err != nil || !has {
-				ses.logError("Failed to auth for %v - %v", ses.user, err)
-				ses.send(fmt.Sprintf("-ERR Failed to auth for %v", ses.user))
-				ses.enterState(QUIT)
-				return
-			}
+			// if err != nil || !has {
+			// 	ses.logError("Failed to auth for %v - %v", ses.user, err)
+			// 	ses.send(fmt.Sprintf("-ERR Failed to auth for %v", ses.user))
+			// 	ses.enterState(QUIT)
+			// 	return
+			// }
 
 			ses.mailbox, err = ses.server.dataStore.MailboxFor(ses.user)
 			if err != nil {

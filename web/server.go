@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/egggo/inbucket/config"
+	"github.com/egggo/inbucket/database"
 	"github.com/egggo/inbucket/log"
 	"github.com/egggo/inbucket/smtpd"
 	"github.com/goods/httpbuf"
@@ -25,15 +26,16 @@ var Router *mux.Router
 var listener net.Listener
 var sessionStore sessions.Store
 var shutdown bool
+var Database *db.Database
 
 // Initialize sets up things for unit tests or the Start() method
-func Initialize(cfg config.WebConfig, ds smtpd.DataStore) {
+func Initialize(cfg config.WebConfig, ds smtpd.DataStore, db *db.Database) {
 	webConfig = cfg
 	setupRoutes(cfg)
 
 	// NewContext() will use this DataStore for the web handlers
 	DataStore = ds
-
+	Database = db
 	// TODO Make configurable
 	sessionStore = sessions.NewCookieStore([]byte("something-very-secret"))
 }
@@ -61,6 +63,13 @@ func setupRoutes(cfg config.WebConfig) {
 	r.Path("/mailbox/dattach/{name}/{id}/{num}/{file}").Handler(handler(MailboxDownloadAttach)).Name("MailboxDownloadAttach").Methods("GET")
 	r.Path("/mailbox/vattach/{name}/{id}/{num}/{file}").Handler(handler(MailboxViewAttach)).Name("MailboxViewAttach").Methods("GET")
 
+	r.Path("/user").Handler(handler(UserAdd)).Name("UserAdd").Methods("POST")
+	r.Path("/user/{id}").Handler(handler(UserUpdate)).Name("UserUpdate").Methods("PUT")
+	r.Path("/user/{id}").Handler(handler(UserDel)).Name("UserDel").Methods("DELETE")
+	r.Path("/user/{id}").Handler(handler(UserGet)).Name("UserGet").Methods("GET")
+	r.Path("/user/{id}/passwd").Handler(handler(UserChangePasswd)).Name("UserChangePasswd").Methods("PUT")
+
+	r.Path("/users/{pageno}/{count}").Handler(handler(UserList)).Name("UserList").Methods("GET")
 	// Register w/ HTTP
 	Router = r
 	http.Handle("/", Router)

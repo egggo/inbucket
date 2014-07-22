@@ -1,14 +1,16 @@
 package web
 
 import (
+	"crypto/md5"
 	"fmt"
+	"github.com/egggo/inbucket/log"
 	"html"
 	"html/template"
+	"math/rand"
 	"regexp"
+	"strconv"
 	"strings"
 	"time"
-
-	"github.com/egggo/inbucket/log"
 )
 
 var TemplateFuncs = template.FuncMap{
@@ -59,4 +61,12 @@ func textToHtml(text string) template.HTML {
 func wrapUrl(url string) string {
 	unescaped := strings.Replace(url, "&amp;", "&", -1)
 	return fmt.Sprintf("<a href=\"%s\" target=\"_blank\">%s</a>", unescaped, url)
+}
+
+// 计算 生成md5crypt 盐值
+func salt() string {
+	r := rand.New(rand.NewSource(time.Now().UnixNano()))
+	magic := strconv.FormatInt(r.Int63(), 10)
+	md5magic := fmt.Sprintf("%X", md5.Sum([]byte(magic)))
+	return md5magic[0:8]
 }
