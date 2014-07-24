@@ -101,7 +101,7 @@ func UserUpdate(w http.ResponseWriter, req *http.Request, ctx *Context) error {
 
 	log.LogInfo("body: %v", body)
 	user := new(db.User)
-	user.Id, err = strconv.ParseInt(id, 10, 0)
+	user.Id, err = strconv.ParseUint(id, 10, 0)
 	if err != nil {
 		log.LogError("Bad user id %v", err)
 		reply["code"] = REPLY_CODE_FAIL
@@ -143,7 +143,7 @@ func UserDel(w http.ResponseWriter, req *http.Request, ctx *Context) error {
 	reply["msg"] = "OK"
 
 	id := ctx.Vars["id"]
-	userId, err := strconv.ParseInt(id, 10, 0)
+	userId, err := strconv.ParseUint(id, 10, 0)
 	if err != nil {
 		log.LogError("Bad user id %v", err)
 		reply["code"] = REPLY_CODE_FAIL
@@ -176,7 +176,7 @@ func UserGet(w http.ResponseWriter, req *http.Request, ctx *Context) error {
 	reply["msg"] = "OK"
 
 	id := ctx.Vars["id"]
-	userId, err := strconv.ParseInt(id, 10, 0)
+	userId, err := strconv.ParseUint(id, 10, 0)
 	if err != nil {
 		log.LogError("Bad user id %v", err)
 		reply["code"] = REPLY_CODE_FAIL
@@ -230,7 +230,7 @@ func UserChangePasswd(w http.ResponseWriter, req *http.Request, ctx *Context) er
 	user := new(db.User)
 	passwdPair := new(PasswdPair)
 
-	user.Id, err = strconv.ParseInt(id, 10, 0)
+	user.Id, err = strconv.ParseUint(id, 10, 0)
 	if err != nil {
 		log.LogError("Bad user id %v", err)
 		reply["code"] = REPLY_CODE_FAIL

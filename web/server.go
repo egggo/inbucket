@@ -70,6 +70,18 @@ func setupRoutes(cfg config.WebConfig) {
 	r.Path("/user/{id}/passwd").Handler(handler(UserChangePasswd)).Name("UserChangePasswd").Methods("PUT")
 
 	r.Path("/users/{pageno}/{count}").Handler(handler(UserList)).Name("UserList").Methods("GET")
+
+	r.Path("/group").Handler(handler(GroupAdd)).Name("GroupAdd").Methods("POST")
+	r.Path("/group/{id}").Handler(handler(GroupUpdate)).Name("GroupUpdate").Methods("PUT")
+	r.Path("/group/{id}").Handler(handler(GroupDel)).Name("GroupDel").Methods("DELETE")
+	r.Path("/group/{id}").Handler(handler(GroupGet)).Name("GroupGet").Methods("GET")
+	r.Path("/groups/{pageno}/{count}").Handler(handler(GroupList)).Name("GroupList").Methods("GET")
+
+	r.Path("/groupMember").Handler(handler(GroupMemberAdd)).Name("GroupMemberAdd").Methods("POST")
+	r.Path("/groupMember/{id}").Handler(handler(GroupMemberDel)).Name("GroupMemberDel").Methods("DELETE")
+	r.Path("/groupMember/{id}").Handler(handler(GroupMemberGet)).Name("GroupMemberGet").Methods("GET")
+	r.Path("/groupMembers/{groupId}/{pageno}/{count}").Handler(handler(GroupMemberList)).Name("GroupMemberList").Methods("GET")
+
 	// Register w/ HTTP
 	Router = r
 	http.Handle("/", Router)

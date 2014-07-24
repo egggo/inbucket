@@ -12,12 +12,28 @@ import (
 )
 
 type User struct {
-	Id       int64     `xorm:"pk autoincr" json:"id"`
+	Id       uint64    `xorm:"pk autoincr" json:"id"`
 	Username string    `xorm:"varchar(255) not null unique 'username'" json:"username"`
 	Password string    `xorm:"varchar(255) not null 'password'" json:"password"`
 	Domain   string    `xorm:"varchar(255) not null 'domain'" json:"domain"`
 	Created  time.Time `xorm:"created" json:"created"`
 	Updated  time.Time `xorm:"updated" json:"updated"`
+}
+
+type Group struct {
+	Id      uint64    `xorm:"pk autoincr" json:"id"`
+	Name    string    `xorm:"varchar(255) not null unique 'name'" json:"name"`
+	Domain  string    `xorm:"varchar(255) not null 'domain'" json:"domain"`
+	Created time.Time `xorm:"created" json:"created"`
+	Updated time.Time `xorm:"updated" json:"updated"`
+}
+
+type GroupMember struct {
+	Id      uint64    `xorm:"pk autoincr" json:"id"`
+	UserId  uint64    `xorm:"BigInt not null" json:"userId"`
+	GroupId uint64    `xorm:"BigInt not null" json:"groupId"`
+	Created time.Time `xorm:"created" json:"created"`
+	Updated time.Time `xorm:"updated" json:"updated"`
 }
 
 type Database struct {
@@ -38,6 +54,8 @@ func New() *Database {
 
 	err = engine.Sync(
 		new(User),
+		new(Group),
+		new(GroupMember),
 	)
 
 	if err != nil {
@@ -59,7 +77,7 @@ func (db *Database) UserAdd(user *User) error {
 	return err
 }
 
-func (db *Database) UserDel(id int64) error {
+func (db *Database) UserDel(id uint64) error {
 	user := new(User)
 	_, err := db.engine.Id(id).Delete(user)
 	return err
@@ -71,7 +89,7 @@ func (db *Database) UserUpdate(user *User) error {
 	return err
 }
 
-func (db *Database) UserGet(id int64) (*User, error) {
+func (db *Database) UserGet(id uint64) (*User, error) {
 	user := new(User)
 	has, err := db.engine.Id(id).Get(user)
 	if !has || err != nil {
@@ -93,7 +111,7 @@ func (db *Database) UserList(pageno int, count int) (int64, []*User, error) {
 	return total, users, nil
 }
 
-func (db *Database) Auth(id int64, pass string) (bool, error) {
+func (db *Database) Auth(id uint64, pass string) (bool, error) {
 	user := new(User)
 
 	log.LogInfo("Auth - id: %v, pass: <%v>", id, pass)
@@ -126,4 +144,82 @@ func (db *Database) Auth(id int64, pass string) (bool, error) {
 		}
 	}
 	return has, err
+}
+
+func (db *Database) GroupAdd(group *Group) error {
+
+	_, err := db.engine.Insert(group)
+	return err
+}
+
+func (db *Database) GroupDel(id uint64) error {
+	group := new(Group)
+	_, err := db.engine.Id(id).Delete(group)
+	return err
+}
+
+func (db *Database) GroupUpdate(group *Group) error {
+
+	_, err := db.engine.Id(group.Id).Update(group)
+	return err
+}
+
+func (db *Database) GroupGet(id uint64) (*Group, error) {
+	group := new(Group)
+	has, err := db.engine.Id(id).Get(group)
+	if !has || err != nil {
+		return nil, err
+	}
+	return group, nil
+}
+
+func (db *Database) GroupList(pageno int, count int) (int64, []*Group, error) {
+	groups := make([]*Group, 0)
+
+	group := new(Group)
+	total, err := db.engine.Count(group)
+	if err != nil {
+		return 0, nil, err
+	}
+	err = db.engine.Limit(count, pageno*count).Find(&groups)
+
+	return total, groups, nil
+}
+
+func (db *Database) GroupMemberAdd(groupMember *GroupMember) error {
+
+	_, err := db.engine.Insert(groupMember)
+	return err
+}
+
+func (db *Database) GroupMemberDel(id uint64) error {
+	groupMember := new(GroupMember)
+	_, err := db.engine.Id(id).Delete(groupMember)
+	return err
+}
+
+func (db *Database) GroupMemberGet(id uint64) (*GroupMember, error) {
+	groupMember := new(GroupMember)
+	has, err := db.engine.Id(id).Get(groupMember)
+	if !has || err != nil {
+		return nil, err
+	}
+	return groupMember, nil
+}
+
+func (db *Database) GroupMemberList(groupId uint64, pageno int, count int) (int64, []*GroupMember, error) {
+	groupMembers := make([]*GroupMember, 0)
+
+	groupMember := new(GroupMember)
+	total, err := db.engine.Count(groupMember)
+	if err != nil {
+		return 0, nil, err
+	}
+
+	if groupId > 0 {
+		err = db.engine.Where("groupId=?", groupId).Limit(count, pageno*count).Find(&groupMembers)
+	} else {
+		err = db.engine.Limit(count, pageno*count).Find(&groupMembers)
+	}
+	return total, groupMembers, nil
 }
