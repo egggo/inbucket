@@ -98,6 +98,15 @@ func (db *Database) UserGet(id uint64) (*User, error) {
 	return user, nil
 }
 
+func (db *Database) UserGetByName(name string) (*User, error) {
+	user := new(User)
+	has, err := db.engine.Where("username=?", name).Get(user)
+	if !has || err != nil {
+		return nil, err
+	}
+	return user, nil
+}
+
 func (db *Database) UserList(pageno int, count int) (int64, []*User, error) {
 	users := make([]*User, 0)
 
@@ -222,4 +231,23 @@ func (db *Database) GroupMemberList(groupId uint64, pageno int, count int) (int6
 		err = db.engine.Limit(count, pageno*count).Find(&groupMembers)
 	}
 	return total, groupMembers, nil
+}
+
+func (db *Database) IsGroup(name string) ([]string, error) {
+
+	log.LogInfo("Auth - name: %v", name)
+
+	var names []string
+
+	users := make([]User, 0)
+	err := db.engine.Sql("select username from user as a, email.group as b, group_member as c where a.id=c.user_id and b.id=c.group_id and b.name=?", name).Find(&users)
+
+	if err != nil {
+		return names, err
+	}
+
+	for _, v := range users {
+		names = append(names, v.Username)
+	}
+	return names, nil
 }

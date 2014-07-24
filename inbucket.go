@@ -122,7 +122,7 @@ func main() {
 	go pop3Server.Start()
 
 	// Startup SMTP server, block until it exits
-	smtpServer = smtpd.NewSmtpServer(config.GetSmtpConfig(), ds)
+	smtpServer = smtpd.NewSmtpServer(config.GetSmtpConfig(), ds, db)
 	smtpServer.Start()
 
 	// Wait for active connections to finish

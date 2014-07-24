@@ -308,16 +308,16 @@ func (ss *Session) mailHandler(cmd string, arg string) {
 			return
 		}
 
-		alias, err := ss.verifyAlias(recip)
+		members, err := ss.server.db.IsGroup(recip)
 		if err != nil {
-			ss.logWarn("Bad recipient address %v", recip)
+			ss.logWarn("Bad recipient address %v - %v", recip, err)
 			ss.send(fmt.Sprintf("501 Bad recipient address %v", recip))
 			return
 		}
 
-		if alias != nil {
+		if len(members) > 0 {
 			// 此地址是别名
-			for _, v := range alias {
+			for _, v := range members {
 				ss.recipients.PushBack(v)
 			}
 

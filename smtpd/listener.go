@@ -10,9 +10,8 @@ import (
 	"time"
 
 	"github.com/egggo/inbucket/config"
+	"github.com/egggo/inbucket/database"
 	"github.com/egggo/inbucket/log"
-	_ "github.com/go-sql-driver/mysql"
-	"github.com/go-xorm/xorm"
 )
 
 // Real server code starts here
@@ -27,7 +26,7 @@ type Server struct {
 	listener        net.Listener
 	shutdown        bool
 	waitgroup       *sync.WaitGroup
-	dbEngine        *xorm.Engine
+	db              *db.Database
 }
 
 // Raw stat collectors
@@ -50,26 +49,13 @@ var expErrorsHist = new(expvar.String)
 var expWarnsHist = new(expvar.String)
 
 // Init a new Server object
-func NewSmtpServer(cfg config.SmtpConfig, ds DataStore) *Server {
-	dbCfg := config.GetDatabaseConfig()
-
-	params := fmt.Sprintf("%s:%s@tcp(%s)/%s?charset=utf8", dbCfg.DBUser, dbCfg.DBPass, dbCfg.DBHost, dbCfg.DBName)
-
-	engine, err := xorm.NewEngine(dbCfg.DBDriver, params)
-
-	if err != nil {
-		log.LogError(" create Db engine  fail: %v", err)
-		// TODO More graceful early-shutdown procedure
-		panic(err)
-	}
-
-	engine.ShowSQL = true
+func NewSmtpServer(cfg config.SmtpConfig, ds DataStore, db *db.Database) *Server {
 
 	return &Server{dataStore: ds, domain: cfg.Domain, maxRecips: cfg.MaxRecipients,
 		maxIdleSeconds: cfg.MaxIdleSeconds, maxMessageBytes: cfg.MaxMessageBytes,
 		storeMessages: cfg.StoreMessages, domainNoStore: strings.ToLower(cfg.DomainNoStore),
 		waitgroup: new(sync.WaitGroup),
-		dbEngine:  engine}
+		db:        db}
 }
 
 // Main listener loop

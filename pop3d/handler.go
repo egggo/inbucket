@@ -191,14 +191,23 @@ func (ses *Session) authorizationHandler(cmd string, args []string) {
 		} else {
 			var err error
 
-			// has, err := ses.auth(ses.user, args[0])
+			user, err := ses.server.db.UserGetByName(ses.user + "@" + ses.server.domain)
 
-			// if err != nil || !has {
-			// 	ses.logError("Failed to auth for %v - %v", ses.user, err)
-			// 	ses.send(fmt.Sprintf("-ERR Failed to auth for %v", ses.user))
-			// 	ses.enterState(QUIT)
-			// 	return
-			// }
+			if err != nil || user == nil {
+				ses.logError("Failed to auth for %v - %v", ses.user, err)
+				ses.send(fmt.Sprintf("-ERR Failed to auth for %v", ses.user))
+				ses.enterState(QUIT)
+				return
+			}
+
+			ok, err := ses.server.db.Auth(user.Id, args[0])
+
+			if err != nil || !ok {
+				ses.logError("Failed to auth for %v - %v", ses.user, err)
+				ses.send(fmt.Sprintf("-ERR Failed to auth for %v", ses.user))
+				ses.enterState(QUIT)
+				return
+			}
 
 			ses.mailbox, err = ses.server.dataStore.MailboxFor(ses.user)
 			if err != nil {
