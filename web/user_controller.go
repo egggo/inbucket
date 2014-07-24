@@ -42,7 +42,7 @@ func UserAdd(w http.ResponseWriter, req *http.Request, ctx *Context) error {
 		return nil
 	}
 
-	log.LogInfo("body: %v", body)
+	log.LogTrace("body: %v", body)
 	user := new(db.User)
 	err = json.Unmarshal(body, user)
 	if err != nil {
@@ -53,7 +53,7 @@ func UserAdd(w http.ResponseWriter, req *http.Request, ctx *Context) error {
 		return nil
 	}
 
-	log.LogInfo("add user %v", user)
+	log.LogTrace("add user %v", user)
 
 	salt := "$1$" + salt()
 
@@ -76,7 +76,7 @@ func UserAdd(w http.ResponseWriter, req *http.Request, ctx *Context) error {
 		return nil
 	}
 
-	log.LogInfo("add user suc %v", user)
+	log.LogTrace("add user suc %v", user)
 
 	reply["id"] = user.Id
 	RenderJson(w, reply)
@@ -99,7 +99,7 @@ func UserUpdate(w http.ResponseWriter, req *http.Request, ctx *Context) error {
 		return nil
 	}
 
-	log.LogInfo("body: %v", body)
+	log.LogTrace("body: %v", body)
 	user := new(db.User)
 	user.Id, err = strconv.ParseUint(id, 10, 0)
 	if err != nil {
@@ -119,7 +119,7 @@ func UserUpdate(w http.ResponseWriter, req *http.Request, ctx *Context) error {
 		return nil
 	}
 
-	log.LogInfo("update user %v", user)
+	log.LogTrace("update user %v", user)
 
 	err = ctx.Database.UserUpdate(user)
 	if err != nil {
@@ -130,7 +130,7 @@ func UserUpdate(w http.ResponseWriter, req *http.Request, ctx *Context) error {
 		return nil
 	}
 
-	log.LogInfo("update user suc %v", user)
+	log.LogTrace("update user suc %v", user)
 
 	RenderJson(w, reply)
 
@@ -152,7 +152,7 @@ func UserDel(w http.ResponseWriter, req *http.Request, ctx *Context) error {
 		return nil
 	}
 
-	log.LogInfo("del user id %d", userId)
+	log.LogTrace("del user id %d", userId)
 
 	err = ctx.Database.UserDel(userId)
 	if err != nil {
@@ -163,7 +163,7 @@ func UserDel(w http.ResponseWriter, req *http.Request, ctx *Context) error {
 		return nil
 	}
 
-	log.LogInfo("del user suc %d", id)
+	log.LogTrace("del user suc %d", id)
 
 	RenderJson(w, reply)
 
@@ -185,7 +185,7 @@ func UserGet(w http.ResponseWriter, req *http.Request, ctx *Context) error {
 		return nil
 	}
 
-	log.LogInfo("get user id %d", userId)
+	log.LogTrace("get user id %d", userId)
 
 	user, err := ctx.Database.UserGet(userId)
 	if err != nil {
@@ -202,7 +202,7 @@ func UserGet(w http.ResponseWriter, req *http.Request, ctx *Context) error {
 		RenderJson(w, reply)
 		return nil
 	}
-	log.LogInfo("get user suc %d", id)
+	log.LogTrace("get user suc %d", id)
 
 	reply["user"] = user
 	RenderJson(w, reply)
@@ -226,7 +226,7 @@ func UserChangePasswd(w http.ResponseWriter, req *http.Request, ctx *Context) er
 		return nil
 	}
 
-	log.LogInfo("body: %v", body)
+	log.LogTrace("body: %v", body)
 	user := new(db.User)
 	passwdPair := new(PasswdPair)
 
@@ -265,7 +265,7 @@ func UserChangePasswd(w http.ResponseWriter, req *http.Request, ctx *Context) er
 		return nil
 	}
 
-	log.LogInfo("change user passwd %v", id)
+	log.LogTrace("change user passwd %v", id)
 
 	salt := "$1$" + salt()
 
@@ -289,7 +289,7 @@ func UserChangePasswd(w http.ResponseWriter, req *http.Request, ctx *Context) er
 		return nil
 	}
 
-	log.LogInfo("change user passwd suc %v", user)
+	log.LogTrace("change user passwd suc %v", user)
 
 	RenderJson(w, reply)
 
@@ -324,7 +324,7 @@ func UserList(w http.ResponseWriter, req *http.Request, ctx *Context) error {
 		return nil
 	}
 
-	log.LogInfo("get user list %d, %d", pagenoNum, countNum)
+	log.LogTrace("get user list %d, %d", pagenoNum, countNum)
 
 	total, users, err := ctx.Database.UserList(pagenoNum, countNum)
 	if err != nil {
@@ -335,7 +335,7 @@ func UserList(w http.ResponseWriter, req *http.Request, ctx *Context) error {
 		return nil
 	}
 
-	log.LogInfo("get user list suc %d %d", pagenoNum, countNum)
+	log.LogTrace("get user list suc %d %d", pagenoNum, countNum)
 
 	reply["total"] = total
 	reply["users"] = users

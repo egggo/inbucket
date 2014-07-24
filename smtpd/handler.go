@@ -278,7 +278,7 @@ func (ss *Session) readyHandler(cmd string, arg string) {
 		}
 		ss.from = from
 		ss.recipients = list.New()
-		ss.logInfo("Mail from: %v", from)
+		ss.logTrace("Mail from: %v", from)
 		ss.send(fmt.Sprintf("250 Roger, accepting mail from <%v>", from))
 		ss.enterState(MAIL)
 	} else {
@@ -325,8 +325,8 @@ func (ss *Session) mailHandler(cmd string, arg string) {
 			ss.recipients.PushBack(recip)
 		}
 
-		ss.logInfo("Recipient: %v", recip)
-		ss.logInfo("Recipients: %v", *ss.recipients)
+		ss.logTrace("Recipient: %v", recip)
+		ss.logTrace("Recipients: %v", *ss.recipients)
 		ss.send(fmt.Sprintf("250 I'll make sure <%v> gets this", recip))
 		return
 	case "DATA":
@@ -427,7 +427,7 @@ func (ss *Session) dataHandler() {
 				expReceivedTotal.Add(1)
 			}
 			ss.send("250 Mail accepted for delivery")
-			ss.logInfo("Message size %v bytes", msgSize)
+			ss.logTrace("Message size %v bytes", msgSize)
 			ss.reset()
 			return
 		}

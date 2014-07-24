@@ -26,7 +26,7 @@ func GroupAdd(w http.ResponseWriter, req *http.Request, ctx *Context) error {
 		return nil
 	}
 
-	log.LogInfo("body: %v", body)
+	log.LogTrace("body: %v", body)
 	group := new(db.Group)
 	err = json.Unmarshal(body, group)
 	if err != nil {
@@ -37,7 +37,7 @@ func GroupAdd(w http.ResponseWriter, req *http.Request, ctx *Context) error {
 		return nil
 	}
 
-	log.LogInfo("add group %v", group)
+	log.LogTrace("add group %v", group)
 
 	err = ctx.Database.GroupAdd(group)
 	if err != nil {
@@ -48,7 +48,7 @@ func GroupAdd(w http.ResponseWriter, req *http.Request, ctx *Context) error {
 		return nil
 	}
 
-	log.LogInfo("add group suc %v", group)
+	log.LogTrace("add group suc %v", group)
 
 	reply["id"] = group.Id
 	RenderJson(w, reply)
@@ -71,7 +71,7 @@ func GroupUpdate(w http.ResponseWriter, req *http.Request, ctx *Context) error {
 		return nil
 	}
 
-	log.LogInfo("body: %v", body)
+	log.LogTrace("body: %v", body)
 	group := new(db.Group)
 	group.Id, err = strconv.ParseUint(id, 10, 0)
 	if err != nil {
@@ -91,7 +91,7 @@ func GroupUpdate(w http.ResponseWriter, req *http.Request, ctx *Context) error {
 		return nil
 	}
 
-	log.LogInfo("update group %v", group)
+	log.LogTrace("update group %v", group)
 
 	err = ctx.Database.GroupUpdate(group)
 	if err != nil {
@@ -102,7 +102,7 @@ func GroupUpdate(w http.ResponseWriter, req *http.Request, ctx *Context) error {
 		return nil
 	}
 
-	log.LogInfo("update group suc %v", group)
+	log.LogTrace("update group suc %v", group)
 
 	RenderJson(w, reply)
 
@@ -124,7 +124,7 @@ func GroupDel(w http.ResponseWriter, req *http.Request, ctx *Context) error {
 		return nil
 	}
 
-	log.LogInfo("del group id %d", userId)
+	log.LogTrace("del group id %d", userId)
 
 	err = ctx.Database.GroupDel(userId)
 	if err != nil {
@@ -135,7 +135,7 @@ func GroupDel(w http.ResponseWriter, req *http.Request, ctx *Context) error {
 		return nil
 	}
 
-	log.LogInfo("del group suc %d", id)
+	log.LogTrace("del group suc %d", id)
 
 	RenderJson(w, reply)
 
@@ -157,7 +157,7 @@ func GroupGet(w http.ResponseWriter, req *http.Request, ctx *Context) error {
 		return nil
 	}
 
-	log.LogInfo("get group id %d", userId)
+	log.LogTrace("get group id %d", userId)
 
 	group, err := ctx.Database.GroupGet(userId)
 	if err != nil {
@@ -174,7 +174,7 @@ func GroupGet(w http.ResponseWriter, req *http.Request, ctx *Context) error {
 		RenderJson(w, reply)
 		return nil
 	}
-	log.LogInfo("get group suc %d", id)
+	log.LogTrace("get group suc %d", id)
 
 	reply["group"] = group
 	RenderJson(w, reply)
@@ -210,7 +210,7 @@ func GroupList(w http.ResponseWriter, req *http.Request, ctx *Context) error {
 		return nil
 	}
 
-	log.LogInfo("get group list %d, %d", pagenoNum, countNum)
+	log.LogTrace("get group list %d, %d", pagenoNum, countNum)
 
 	total, groups, err := ctx.Database.GroupList(pagenoNum, countNum)
 	if err != nil {
@@ -221,7 +221,7 @@ func GroupList(w http.ResponseWriter, req *http.Request, ctx *Context) error {
 		return nil
 	}
 
-	log.LogInfo("get group list suc %d %d", pagenoNum, countNum)
+	log.LogTrace("get group list suc %d %d", pagenoNum, countNum)
 
 	reply["total"] = total
 	reply["groups"] = groups
@@ -244,7 +244,7 @@ func GroupMemberAdd(w http.ResponseWriter, req *http.Request, ctx *Context) erro
 		return nil
 	}
 
-	log.LogInfo("body: %v", body)
+	log.LogTrace("body: %v", body)
 	groupMember := new(db.GroupMember)
 	err = json.Unmarshal(body, groupMember)
 	if err != nil {
@@ -255,7 +255,7 @@ func GroupMemberAdd(w http.ResponseWriter, req *http.Request, ctx *Context) erro
 		return nil
 	}
 
-	log.LogInfo("add groupMember %v", groupMember)
+	log.LogTrace("add groupMember %v", groupMember)
 
 	err = ctx.Database.GroupMemberAdd(groupMember)
 	if err != nil {
@@ -266,7 +266,7 @@ func GroupMemberAdd(w http.ResponseWriter, req *http.Request, ctx *Context) erro
 		return nil
 	}
 
-	log.LogInfo("add groupMember suc %v", groupMember)
+	log.LogTrace("add groupMember suc %v", groupMember)
 
 	reply["id"] = groupMember.Id
 	RenderJson(w, reply)
@@ -288,7 +288,7 @@ func GroupMemberDel(w http.ResponseWriter, req *http.Request, ctx *Context) erro
 		return nil
 	}
 
-	log.LogInfo("del groupMember id %d", groupMemberId)
+	log.LogTrace("del groupMember id %d", groupMemberId)
 
 	err = ctx.Database.GroupMemberDel(groupMemberId)
 	if err != nil {
@@ -299,7 +299,7 @@ func GroupMemberDel(w http.ResponseWriter, req *http.Request, ctx *Context) erro
 		return nil
 	}
 
-	log.LogInfo("del groupMember suc %d", id)
+	log.LogTrace("del groupMember suc %d", id)
 
 	RenderJson(w, reply)
 
@@ -321,7 +321,7 @@ func GroupMemberGet(w http.ResponseWriter, req *http.Request, ctx *Context) erro
 		return nil
 	}
 
-	log.LogInfo("get groupMember id %d", groupMemberId)
+	log.LogTrace("get groupMember id %d", groupMemberId)
 
 	groupMember, err := ctx.Database.GroupMemberGet(groupMemberId)
 	if err != nil {
@@ -338,7 +338,7 @@ func GroupMemberGet(w http.ResponseWriter, req *http.Request, ctx *Context) erro
 		RenderJson(w, reply)
 		return nil
 	}
-	log.LogInfo("get groupMember suc %d", id)
+	log.LogTrace("get groupMember suc %d", id)
 
 	reply["groupMember"] = groupMember
 	RenderJson(w, reply)
@@ -384,7 +384,7 @@ func GroupMemberList(w http.ResponseWriter, req *http.Request, ctx *Context) err
 		return nil
 	}
 
-	log.LogInfo("get groupMember list %d, %d, %d", groupId, pagenoNum, countNum)
+	log.LogTrace("get groupMember list %d, %d, %d", groupId, pagenoNum, countNum)
 
 	total, groupMembers, err := ctx.Database.GroupMemberList(groupId, pagenoNum, countNum)
 	if err != nil {
