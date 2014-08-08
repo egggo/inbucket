@@ -69,7 +69,7 @@ func setupRoutes(cfg config.WebConfig) {
 	r.Path("/user/{id}").Handler(handler(UserGet)).Name("UserGet").Methods("GET")
 	r.Path("/user/{id}/passwd").Handler(handler(UserChangePasswd)).Name("UserChangePasswd").Methods("PUT")
 
-	r.Path("/users/{pageno}/{count}").Handler(handler(UserList)).Name("UserList").Methods("GET")
+	r.Path("/users/{pageno}/{count}").Handler(handler(UserList)).Name("UserList").Methods("POST")
 
 	r.Path("/group").Handler(handler(GroupAdd)).Name("GroupAdd").Methods("POST")
 	r.Path("/group/{id}").Handler(handler(GroupUpdate)).Name("GroupUpdate").Methods("PUT")

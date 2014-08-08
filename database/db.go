@@ -107,15 +107,34 @@ func (db *Database) UserGetByName(name string) (*User, error) {
 	return user, nil
 }
 
-func (db *Database) UserList(pageno int, count int) (int64, []*User, error) {
+func (db *Database) UserList(pageno int, count int, ids []uint64) (int64, []*User, error) {
 	users := make([]*User, 0)
 
 	user := new(User)
-	total, err := db.engine.Count(user)
-	if err != nil {
-		return 0, nil, err
+
+	var total int64
+	var err error
+	if len(ids) > 0 {
+		var idList []string
+
+		for _, v := range ids {
+			idList = append(idList, fmt.Sprintf("%d", v))
+		}
+
+		incluse := fmt.Sprintf("id in (%s)", strings.Join(idList, ","))
+
+		total, err = db.engine.Where(incluse).Count(user)
+		if err != nil {
+			return 0, nil, err
+		}
+		err = db.engine.In("id", ids).Limit(count, pageno*count).Find(&users)
+	} else {
+		total, err = db.engine.Count(user)
+		if err != nil {
+			return 0, nil, err
+		}
+		err = db.engine.Limit(count, pageno*count).Find(&users)
 	}
-	err = db.engine.Limit(count, pageno*count).Find(&users)
 
 	return total, users, nil
 }
@@ -220,14 +239,20 @@ func (db *Database) GroupMemberList(groupId uint64, pageno int, count int) (int6
 	groupMembers := make([]*GroupMember, 0)
 
 	groupMember := new(GroupMember)
-	total, err := db.engine.Count(groupMember)
-	if err != nil {
-		return 0, nil, err
-	}
 
+	var err error
+	var total int64
 	if groupId > 0 {
-		err = db.engine.Where("groupId=?", groupId).Limit(count, pageno*count).Find(&groupMembers)
+		total, err = db.engine.Where("group_id=?", groupId).Count(groupMember)
+		if err != nil {
+			return 0, nil, err
+		}
+		err = db.engine.Where("group_id=?", groupId).Limit(count, pageno*count).Find(&groupMembers)
 	} else {
+		total, err = db.engine.Count(groupMember)
+		if err != nil {
+			return 0, nil, err
+		}
 		err = db.engine.Limit(count, pageno*count).Find(&groupMembers)
 	}
 	return total, groupMembers, nil

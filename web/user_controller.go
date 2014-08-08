@@ -21,11 +21,21 @@ const (
 	REPLY_CODE_BAD_PASSWD   = "11"
 )
 
+const (
+	QUERY_USER_TYPE_NORMAL = 1
+	QUERY_USER_TYPE_BATCH  = 2
+)
+
 type Reply map[string]interface{}
 
 type PasswdPair struct {
 	Old string `json:"oldPass"`
 	New string `json:"newPass"`
+}
+
+type BatchUser struct {
+	Type     int       `json:"type"`
+	UserList []db.User `json:"users"`
 }
 
 func UserAdd(w http.ResponseWriter, req *http.Request, ctx *Context) error {
@@ -324,9 +334,38 @@ func UserList(w http.ResponseWriter, req *http.Request, ctx *Context) error {
 		return nil
 	}
 
-	log.LogTrace("get user list %d, %d", pagenoNum, countNum)
+	body, err := ioutil.ReadAll(req.Body)
+	if err != nil {
+		log.LogError("read req %v", err)
+		reply["code"] = REPLY_CODE_FAIL
+		reply["msg"] = err.Error()
+		RenderJson(w, reply)
+		return nil
+	}
 
-	total, users, err := ctx.Database.UserList(pagenoNum, countNum)
+	batchUser := new(BatchUser)
+
+	log.LogTrace("body: %v ", body)
+	err = json.Unmarshal(body, batchUser)
+	if err != nil {
+		log.LogError("unmarshal user %v", err)
+		reply["code"] = REPLY_CODE_FAIL
+		reply["msg"] = err.Error()
+		RenderJson(w, reply)
+		return nil
+	}
+
+	log.LogTrace("get user list %d, %d, %d, %d", pagenoNum, countNum, batchUser.Type, len(batchUser.UserList))
+
+	ids := make([]uint64, 0)
+
+	if batchUser.Type == QUERY_USER_TYPE_BATCH {
+		for _, v := range batchUser.UserList {
+			ids = append(ids, v.Id)
+		}
+	}
+
+	total, users, err := ctx.Database.UserList(pagenoNum, countNum, ids)
 	if err != nil {
 		log.LogError("get user list %v", err)
 		reply["code"] = REPLY_CODE_FAIL
