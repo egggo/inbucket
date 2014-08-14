@@ -34,8 +34,11 @@ type PasswdPair struct {
 }
 
 type BatchUser struct {
-	Type     int       `json:"type"`
-	UserList []db.User `json:"users"`
+	Type        int       `json:"type"`
+	OrderColumn string    `json:"orderColumn"`
+	Order       string    `json:"order"`
+	Match       string    `json:"match"`
+	UserList    []db.User `json:"users"`
 }
 
 func UserAdd(w http.ResponseWriter, req *http.Request, ctx *Context) error {
@@ -355,7 +358,7 @@ func UserList(w http.ResponseWriter, req *http.Request, ctx *Context) error {
 		return nil
 	}
 
-	log.LogTrace("get user list %d, %d, %d, %d", pagenoNum, countNum, batchUser.Type, len(batchUser.UserList))
+	log.LogTrace("get user list %d, %d, %d, %v", pagenoNum, countNum, batchUser.Type, batchUser)
 
 	ids := make([]uint64, 0)
 
@@ -365,7 +368,7 @@ func UserList(w http.ResponseWriter, req *http.Request, ctx *Context) error {
 		}
 	}
 
-	total, users, err := ctx.Database.UserList(pagenoNum, countNum, ids)
+	total, users, err := ctx.Database.UserList(pagenoNum, countNum, ids, batchUser.OrderColumn, batchUser.Order, batchUser.Match)
 	if err != nil {
 		log.LogError("get user list %v", err)
 		reply["code"] = REPLY_CODE_FAIL

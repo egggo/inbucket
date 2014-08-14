@@ -107,33 +107,50 @@ func (db *Database) UserGetByName(name string) (*User, error) {
 	return user, nil
 }
 
-func (db *Database) UserList(pageno int, count int, ids []uint64) (int64, []*User, error) {
+func (db *Database) UserList(pageno int, count int, ids []uint64, column string, order string, match string) (int64, []*User, error) {
+
+	if len(column) < 1 {
+		column = "id"
+	}
+
 	users := make([]*User, 0)
 
 	user := new(User)
 
 	var total int64
 	var err error
+
+	var idList []string
+
+	for _, v := range ids {
+		idList = append(idList, fmt.Sprintf("%d", v))
+	}
+
+	var incluse string
+
 	if len(ids) > 0 {
-		var idList []string
+		incluse = fmt.Sprintf("id in (%s) %s ", strings.Join(idList, ","), incluse)
+	}
 
-		for _, v := range ids {
-			idList = append(idList, fmt.Sprintf("%d", v))
+	if len(match) > 0 {
+
+		if len(incluse) > 0 {
+			incluse = incluse + " and "
 		}
+		incluse = fmt.Sprintf(" %s username like '%%%s%%' ", incluse, match)
+	}
 
-		incluse := fmt.Sprintf("id in (%s)", strings.Join(idList, ","))
+	total, err = db.engine.Where(incluse).Count(user)
+	if err != nil {
+		return 0, nil, err
+	}
 
-		total, err = db.engine.Where(incluse).Count(user)
-		if err != nil {
-			return 0, nil, err
-		}
-		err = db.engine.In("id", ids).Limit(count, pageno*count).Find(&users)
+	if order == "asc" {
+		err = db.engine.Where(incluse).Asc(column).Limit(count, pageno*count).Find(&users)
+
 	} else {
-		total, err = db.engine.Count(user)
-		if err != nil {
-			return 0, nil, err
-		}
-		err = db.engine.Limit(count, pageno*count).Find(&users)
+
+		err = db.engine.Where(incluse).Desc(column).Limit(count, pageno*count).Find(&users)
 	}
 
 	return total, users, nil
