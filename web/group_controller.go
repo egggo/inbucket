@@ -37,6 +37,23 @@ func GroupAdd(w http.ResponseWriter, req *http.Request, ctx *Context) error {
 		return nil
 	}
 
+	user, err := ctx.Database.UserGetByName(group.Name)
+	if err != nil {
+		log.LogError("check group and user %v", err)
+		reply["code"] = REPLY_CODE_FAIL
+		reply["msg"] = err.Error()
+		RenderJson(w, reply)
+		return nil
+	}
+
+	if user != nil {
+		log.LogError("already exist %v", user.Username)
+		reply["code"] = REPLY_CODE_ALREADY_EXIST
+		reply["msg"] = "already exist user"
+		RenderJson(w, reply)
+		return nil
+	}
+
 	log.LogTrace("add group %v", group)
 
 	err = ctx.Database.GroupAdd(group)

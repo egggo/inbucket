@@ -191,7 +191,7 @@ func (ses *Session) authorizationHandler(cmd string, args []string) {
 		} else {
 			var err error
 
-			user, err := ses.server.db.UserGetByName(ses.user + "@" + ses.server.domain)
+			user, err := ses.server.db.UserGetByName(ses.user)
 
 			if err != nil || user == nil {
 				ses.logError("Failed to auth for %v - %v", ses.user, err)

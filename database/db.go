@@ -279,17 +279,19 @@ func (db *Database) IsGroup(name string) ([]string, error) {
 
 	log.LogInfo("Auth - name: %v", name)
 
+	sub := strings.Split(name, "@")
+
 	var names []string
 
 	users := make([]User, 0)
-	err := db.engine.Sql("select username from user as a, email.group as b, group_member as c where a.id=c.user_id and b.id=c.group_id and b.name=?", name).Find(&users)
+	err := db.engine.Sql("select username, a.domain from user as a, email.group as b, group_member as c where a.id=c.user_id and b.id=c.group_id and b.name=?", sub[0]).Find(&users)
 
 	if err != nil {
 		return names, err
 	}
 
 	for _, v := range users {
-		names = append(names, v.Username)
+		names = append(names, v.Username+"@"+v.Domain)
 	}
 	return names, nil
 }

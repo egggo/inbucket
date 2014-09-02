@@ -16,9 +16,10 @@ import (
 const (
 	REPLY_CODE_OK = "0"
 
-	REPLY_CODE_FAIL         = "1"
-	REPLY_CODE_NO_SUCH_USER = "10"
-	REPLY_CODE_BAD_PASSWD   = "11"
+	REPLY_CODE_FAIL          = "1"
+	REPLY_CODE_NO_SUCH_USER  = "10"
+	REPLY_CODE_BAD_PASSWD    = "11"
+	REPLY_CODE_ALREADY_EXIST = "12"
 )
 
 const (
@@ -261,22 +262,22 @@ func UserChangePasswd(w http.ResponseWriter, req *http.Request, ctx *Context) er
 		return nil
 	}
 
-	pass, err := ctx.Database.Auth(user.Id, passwdPair.Old)
-	if err != nil {
-		log.LogError("unmarshal passwdPair %v", err)
-		reply["code"] = REPLY_CODE_FAIL
-		reply["msg"] = err.Error()
-		RenderJson(w, reply)
-		return nil
-	}
+	// pass, err := ctx.Database.Auth(user.Id, passwdPair.Old)
+	// if err != nil {
+	// 	log.LogError("unmarshal passwdPair %v", err)
+	// 	reply["code"] = REPLY_CODE_FAIL
+	// 	reply["msg"] = err.Error()
+	// 	RenderJson(w, reply)
+	// 	return nil
+	// }
 
-	if !pass {
-		log.LogError("bad passwd %v", passwdPair)
-		reply["code"] = REPLY_CODE_BAD_PASSWD
-		reply["msg"] = fmt.Errorf("bad passwd").Error()
-		RenderJson(w, reply)
-		return nil
-	}
+	// if !pass {
+	// 	log.LogError("bad passwd %v", passwdPair)
+	// 	reply["code"] = REPLY_CODE_BAD_PASSWD
+	// 	reply["msg"] = fmt.Errorf("bad passwd").Error()
+	// 	RenderJson(w, reply)
+	// 	return nil
+	// }
 
 	log.LogTrace("change user passwd %v", id)
 
